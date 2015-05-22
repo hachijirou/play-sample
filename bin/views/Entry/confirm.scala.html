@@ -1,0 +1,39 @@
+@(entryData: controllers.Entry.EntryData, csrfToken: String)
+
+@toSecretString(password: String) = {
+  @("*" * password.length)
+}
+
+@main("Entry - confirm") {
+
+  <h2>Confirm page</h2>
+  @helper.form(action = routes.Entry.complete()) {
+    <div class="control-group">
+      <label class="control-label" for="account">アカウント</label>
+      <div class="controls">
+        @entryData.account
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="password">パスワード</label>
+      <div class="controls">
+        @toSecretString(entryData.password)
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="emailAddress">E-mail</label>
+      <div class="controls">
+        @entryData.emailAddress
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="controls">
+        <button type="submit" class="btn btn-primary">登録</button>
+      </div>
+    </div>
+    <input type="hidden" name="account" value="@entryData.account" />
+    <input type="hidden" name="passwordHashing" value="@entryData.passwordHashing" />
+    <input type="hidden" name="emailAddress" value="@entryData.emailAddress" />
+    <input type="hidden" name="csrfToken" value="@csrfToken" />
+  }
+}

@@ -1,0 +1,61 @@
+@(entryForm: Form[controllers.Entry.EntryData])
+
+@* BootStrapで定義されたエラーフォームを表すクラス名取得する *@
+@errorStringForCSS(key: String) = {
+  @if(! entryForm.error(key).isEmpty) {
+    error
+  }
+}
+
+@* アプリで定義したエラーメッセージを表示する *@
+@errorMessage(key: String) = {
+  @if(! entryForm.error(key).isEmpty) {
+    <span class="help-inline">
+      @Messages(entryForm.error(key).get.message, entryForm.error(key).get.args.mkString(","))
+    </span>
+  }
+}
+
+@main("Entry - top") {
+
+  <h2>Entry Page</h2>
+  @entryForm.globalError.map { error =>
+    <p class="text-error">・@error.message</p>
+  }
+  @helper.form(routes.Entry.confirm()) {
+    <div class="control-group @errorStringForCSS("account")">
+      <label class="control-label" for="account">アカウント</label>
+      <div class="controls">
+        <input type="text" id="account" name="account" value="@entryForm.data.getOrElse("account", "")" />
+        @errorMessage("account")
+      </div>
+    </div>
+    <div class="control-group @errorStringForCSS("password")">
+      <label class="control-label" for="password">パスワード</label>
+      <div class="controls">
+        <input type="password" id="password" name="password" value="" />
+        @errorMessage("password")
+      </div>
+    </div>
+    <div class="control-group @errorStringForCSS("passwordConfirm")">
+      <label class="control-label" for="passwordConfirm">パスワード(確認)</label>
+      <div class="controls">
+        <input type="password" id="passwordConfirm" name="passwordConfirm" value="" />
+        @errorMessage("passwordConfirm")
+      </div>
+    </div>
+    <div class="control-group @errorStringForCSS("emailAddress")">
+      <label class="control-label" for="emailAddress">E-mail</label>
+      <div class="controls">
+        <input type="text" id="emailAddress" name="emailAddress" value="@entryForm.data.getOrElse("emailAddress", "")" />
+        @errorMessage("emailAddress")
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="controls">
+        <button type="submit" class="btn">確認</button>
+      </div>
+    </div>
+  }
+
+}
