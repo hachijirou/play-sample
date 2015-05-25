@@ -2,7 +2,6 @@ package controllers
 
 import scala.util.Random
 import scala.util.Try
-
 import infra.dao.MUserDao
 import models.entity.User
 import play.api.data.Form
@@ -13,8 +12,9 @@ import play.api.data.Forms.text
 import play.api.libs.Crypto
 import play.api.mvc.Action
 import play.api.mvc.Controller
+import core.ComponentRegistry
 
-object Entry extends Controller {
+object Entry extends Controller with ComponentRegistry {
 
   /**
    * 入力フォーム用のデータ
@@ -98,7 +98,7 @@ object Entry extends Controller {
         // 登録成功するまで最大3回リトライ
         Iterator.continually[Try[Boolean]]{
           val user = User(entryData.account, entryData.passwordHashing, entryData.emailAddress)
-          Try(MUserDao.store(user))
+          Try(mUserDao.store(user))
         }.take(3).find(_.isSuccess).flatMap(_.toOption).map{ ret =>
           if (ret == false) throw new RuntimeException("fail to create account.")
         }.getOrElse(throw new RuntimeException("retry error!!"))
