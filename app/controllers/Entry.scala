@@ -2,8 +2,10 @@ package controllers
 
 import scala.util.Random
 import scala.util.Try
-import infra.dao.MUserDao
+
+import core.ComponentRegistry
 import models.entity.User
+import models.value.UserId
 import play.api.data.Form
 import play.api.data.Forms.email
 import play.api.data.Forms.mapping
@@ -12,7 +14,6 @@ import play.api.data.Forms.text
 import play.api.libs.Crypto
 import play.api.mvc.Action
 import play.api.mvc.Controller
-import core.ComponentRegistry
 
 object Entry extends Controller with ComponentRegistry {
 
@@ -41,7 +42,9 @@ object Entry extends Controller with ComponentRegistry {
       "passwordConfirm" -> text,
       "emailAddress" -> email)(EntryData.apply)(EntryData.unapply).verifying(
         "パスワードが一致していません。",
-        entryData => entryData.password == entryData.passwordConfirm))
+        entryData => entryData.password == entryData.passwordConfirm).verifying(
+        "すでに登録済みのアカウントです。",
+        entryData => userService.isNewlyAccount(entryData.account, entryData.passwordHashing)))
 
   /**
    * 確認フォーム用のデータ
@@ -90,18 +93,18 @@ object Entry extends Controller with ComponentRegistry {
       errors => throw new RuntimeException("Bad Request"),
       entryData => {
         // CSRFチェック
-        request.session.get("csrfToken").map[Unit]{ sessionToken =>
+        request.session.get("csrfToken").map[Unit] { sessionToken =>
           if (entryData.csrfToken != sessionToken) throw new RuntimeException("Bad Request")
         }.getOrElse(throw new RuntimeException("Bad Request"))
 
+        // アカウントが未使用かチェック
+        if (! userService.isNewlyAccount(entryData.account, entryData.passwordHashing)) {
+
+        }
+
         // アカウント登録
-        // 登録成功するまで最大3回リトライ
-        Iterator.continually[Try[Boolean]]{
-          val user = User(entryData.account, entryData.passwordHashing, entryData.emailAddress)
-          Try(mUserDao.store(user))
-        }.take(3).find(_.isSuccess).flatMap(_.toOption).map{ ret =>
-          if (ret == false) throw new RuntimeException("fail to create account.")
-        }.getOrElse(throw new RuntimeException("retry error!!"))
+        userService.createAccount(
+          entryData.account, entryData.passwordHashing, entryData.emailAddress)
 
         Ok(views.html.Entry.complete("Entry complete page.")).withSession(
           request.session - "csrfToken")

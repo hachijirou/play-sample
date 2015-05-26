@@ -1,10 +1,8 @@
 package models.entity
 
-import org.apache.commons.lang3.RandomStringUtils
-
 import anorm.RowParser
-import models.value.UserId
-import models.value.UserId
+import anorm.SqlParser.int
+import anorm.SqlParser.str
 import models.value.UserId
 import models.value.code.USER_STATUS
 
@@ -20,17 +18,17 @@ case class User private (id: UserId, account: String, passwordHashing: String, e
 object User {
 
   // データマッピング
-  val userParser: RowParser[User] = {
+  implicit val userParser: RowParser[User] = {
     import anorm._
     import anorm.SqlParser._
     str("id") ~
-    str("account") ~
-    str("password_hash") ~
-    str("email_address") ~
-    int("status") map {
-      case id ~ account ~ password_hash ~ email_address ~ status =>
-        User(UserId(id), account, password_hash, email_address, USER_STATUS(status))
-    }
+      str("account") ~
+      str("password_hash") ~
+      str("email_address") ~
+      int("status") map {
+        case id ~ account ~ password_hash ~ email_address ~ status =>
+          User(UserId(id), account, password_hash, email_address, USER_STATUS(status))
+      }
   }
 
   /**
@@ -43,20 +41,9 @@ object User {
    * @param emailAddress メールアドレス
    * @return ユーザを表すエンティティ
    */
-  def apply(account: String, passwordHashing: String, emailAddress: String): User = {
-    val id = UserId(User.generateId)
+  def apply(id: UserId, account: String, passwordHashing: String, emailAddress: String): User = {
     val status = USER_STATUS.ACTIVE
     new User(id, account, passwordHashing, emailAddress, status)
   }
-
-  /**
-   * ユーザIDを生成する.
-   *
-   * @return 生成した16桁のユーザID
-   */
-  private def generateId: String = {
-    RandomStringUtils.randomAlphanumeric(16)
-  }
-
 
 }

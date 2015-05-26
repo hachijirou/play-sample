@@ -7,20 +7,37 @@ import anorm.sqlToSimple
 import models.entity.User
 import play.api.Play.current
 import play.api.db.DB
+import anorm.RowParser
+import models.value.UserId
+import models.value.code.USER_STATUS
 /**
  * MUserデータアクセスクラス
- *
- * Cakeパターン対応
  */
 trait MUserDaoComponent {
   val mUserDao: MUserDao
   // IF
   trait MUserDao {
-    def store(user: User): Boolean
+    /**
+     * ユーザ情報を登録します.
+     *
+     * @param user ユーザエンティティ
+     * @return ユーザエンティティ
+     */
+    def store(user: User): User
+    /**
+     * アカウントとパスワードをキーにユーザ情報を取得します.
+     *
+     * @param account アカウント
+     * @param passwordHashing ハッシュ化されたパスワード
+     * @param paser パーサーオブジェクト
+     */
+    def findByAccountAndPasswordHashing(
+      account: String, passwordHashing: String)(implicit parser: RowParser[User]): Option[User]
   }
   // Impl for jdbc
   class JdbcMUserDao extends MUserDao {
-    def store(user: User): Boolean = DB.withConnection { implicit connection =>
+    // ユーザ情報登録
+    def store(user: User): User = DB.withConnection { implicit connection =>
       val created, updated = new DateTime()
       val addedRows = SQL("""insert
         into m_user
@@ -32,7 +49,18 @@ trait MUserDaoComponent {
         "status" -> user.status.code,
         "created" -> created,
         "updated" -> updated).executeUpdate()
-      if (addedRows == 1) true else throw new RuntimeException("fail to update")
+      if (addedRows == 1) user else throw new GenericDaoException("fail to update")
+    }
+    // アカウントとパスワードをキーにユーザ情報を取得します.
+    def findByAccountAndPasswordHashing(account: String, passwordHashing: String)
+      (implicit parser: RowParser[User]): Option[User] = DB.withConnection { implicit connection =>
+        val status = USER_STATUS.ACTIVE
+        SQL("""select *
+          from m_user
+          where account = {account} and password_hash = {password_hash} and status = {status}""").on(
+          "account" -> account,
+          "password_hash" -> passwordHashing,
+          "status" -> status.code).as(parser.singleOpt)
     }
   }
 }
