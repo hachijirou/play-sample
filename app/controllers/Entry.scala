@@ -41,9 +41,9 @@ object Entry extends Controller with ComponentRegistry {
       "password" -> nonEmptyText(minLength = 1, maxLength = 18),
       "passwordConfirm" -> text,
       "emailAddress" -> email)(EntryData.apply)(EntryData.unapply).verifying(
-        "パスワードが一致していません。",
+        "error.email.unmatch",
         entryData => entryData.password == entryData.passwordConfirm).verifying(
-        "すでに登録済みのアカウントです。",
+        "error.no.newly.account",
         entryData => userService.isNewlyAccount(entryData.account, entryData.passwordHashing)))
 
   /**
@@ -62,7 +62,9 @@ object Entry extends Controller with ComponentRegistry {
       "account" -> nonEmptyText,
       "passwordHashing" -> nonEmptyText,
       "emailAddress" -> email,
-      "csrfToken" -> nonEmptyText)(EntryConfirmData.apply)(EntryConfirmData.unapply))
+      "csrfToken" -> nonEmptyText)(EntryConfirmData.apply)(EntryConfirmData.unapply).verifying(
+        "error.email.unmatch",
+        entryData => userService.isNewlyAccount(entryData.account, entryData.passwordHashing)))
 
   /**
    * アカウント登録TOPページ
@@ -90,7 +92,13 @@ object Entry extends Controller with ComponentRegistry {
    */
   def complete = Action { implicit request =>
     entryConfirmForm.bindFromRequest.fold(
-      errors => throw new RuntimeException("Bad Request"),
+      errors => {
+//        errors.globalError.map(_.message match {
+//          case "error.no.newly.account" => throw new RuntimeException("Bad Request")
+//          case _ => throw new RuntimeException("Bad Request")
+//        })
+        throw new RuntimeException("Bad Request")
+      },
       entryData => {
         // CSRFチェック
         request.session.get("csrfToken").map[Unit] { sessionToken =>
