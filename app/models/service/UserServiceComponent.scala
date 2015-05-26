@@ -1,6 +1,6 @@
 package models.service
 
-import infra.dao.MUserDaoComponent
+import models.dao.MUserDaoComponent
 
 trait UserServiceComponent {
   this: MUserDaoComponent =>
