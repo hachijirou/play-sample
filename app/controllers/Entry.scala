@@ -2,7 +2,6 @@ package controllers
 
 import scala.util.Random
 import scala.util.Try
-
 import core.ComponentRegistry
 import models.entity.User
 import models.value.UserId
@@ -14,6 +13,7 @@ import play.api.data.Forms.text
 import play.api.libs.Crypto
 import play.api.mvc.Action
 import play.api.mvc.Controller
+import play.api.UnexpectedException
 
 object Entry extends Controller with ComponentRegistry {
 
@@ -62,9 +62,7 @@ object Entry extends Controller with ComponentRegistry {
       "account" -> nonEmptyText,
       "passwordHashing" -> nonEmptyText,
       "emailAddress" -> email,
-      "csrfToken" -> nonEmptyText)(EntryConfirmData.apply)(EntryConfirmData.unapply).verifying(
-        "error.email.unmatch",
-        entryData => userService.isNewlyAccount(entryData.account, entryData.passwordHashing)))
+      "csrfToken" -> nonEmptyText)(EntryConfirmData.apply)(EntryConfirmData.unapply))
 
   /**
    * アカウント登録TOPページ
@@ -92,27 +90,18 @@ object Entry extends Controller with ComponentRegistry {
    */
   def complete = Action { implicit request =>
     entryConfirmForm.bindFromRequest.fold(
-      errors => {
-//        errors.globalError.map(_.message match {
-//          case "error.no.newly.account" => throw new RuntimeException("Bad Request")
-//          case _ => throw new RuntimeException("Bad Request")
-//        })
-        throw new RuntimeException("Bad Request")
-      },
+      errors => throw new RuntimeException("Bad Request"),
       entryData => {
         // CSRFチェック
         request.session.get("csrfToken").map[Unit] { sessionToken =>
           if (entryData.csrfToken != sessionToken) throw new RuntimeException("Bad Request")
         }.getOrElse(throw new RuntimeException("Bad Request"))
 
-        // アカウントが未使用かチェック
-        if (! userService.isNewlyAccount(entryData.account, entryData.passwordHashing)) {
-
-        }
-
         // アカウント登録
-        userService.createAccount(
-          entryData.account, entryData.passwordHashing, entryData.emailAddress)
+        if (userService.isNewlyAccount(entryData.account, entryData.passwordHashing)) {
+          userService.createAccount(
+            entryData.account, entryData.passwordHashing, entryData.emailAddress)
+        } else throw new NoNewlyAccountException("Illegal operation.")
 
         Ok(views.html.Entry.complete("Entry complete page.")).withSession(
           request.session - "csrfToken")
