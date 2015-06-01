@@ -1,10 +1,8 @@
 package controllers
 
 import scala.util.Random
-import scala.util.Try
-import core.ComponentRegistry
-import models.entity.User
-import models.value.UserId
+
+import core.ComponentRegistry._
 import play.api.data.Form
 import play.api.data.Forms.email
 import play.api.data.Forms.mapping
@@ -13,9 +11,8 @@ import play.api.data.Forms.text
 import play.api.libs.Crypto
 import play.api.mvc.Action
 import play.api.mvc.Controller
-import play.api.UnexpectedException
 
-object Entry extends Controller with ComponentRegistry {
+object Entry extends Controller {
 
   /**
    * 入力フォーム用のデータ

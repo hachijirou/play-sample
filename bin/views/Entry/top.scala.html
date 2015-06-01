@@ -20,7 +20,7 @@
 
   <h2>Entry Page</h2>
   @entryForm.globalError.map { error =>
-    <p class="text-error">・@error.message</p>
+    <p class="text-error">・@Messages(error.message)</p>
   }
   @helper.form(routes.Entry.confirm()) {
     <div class="control-group @errorStringForCSS("account")">

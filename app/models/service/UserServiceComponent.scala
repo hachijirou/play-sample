@@ -10,7 +10,7 @@ import models.value.UserId
 trait UserServiceComponent {
   this: MUserDaoComponent =>
   val userService: UserService
-  class UserService extends ComponentRegistry{
+  class UserService {
 
     /**
      * アカウントが未使用かどうかチェックする.
