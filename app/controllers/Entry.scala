@@ -2,7 +2,8 @@ package controllers
 
 import scala.util.Random
 
-import core.ComponentRegistry._
+import core.ComponentRegistry.userService
+import play.Entry.confirm.$anonfun.$anonfun.errors
 import play.api.data.Form
 import play.api.data.Forms.email
 import play.api.data.Forms.mapping

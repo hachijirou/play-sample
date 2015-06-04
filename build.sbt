@@ -18,3 +18,5 @@ libraryDependencies ++= Seq(
 fork in run := true
 
 PlayKeys.playWatchService := play.sbtplugin.run.PlayWatchService.sbt(pollInterval.value)
+
+javaOptions in run += "-Dconfig.resource=application_local.conf"
