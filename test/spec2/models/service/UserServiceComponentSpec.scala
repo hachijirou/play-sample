@@ -13,6 +13,8 @@ import models.dao.MUserDaoComponent
 import core.TestComponentRegistry
 import core.TestComponentRegistry
 import scala.reflect.ClassTag
+import play.Logger
+import models.service.OverRetryCountException
 
 /**
  * UserServiceComponentのテスト
@@ -55,15 +57,36 @@ class UserServiceComponentSpec extends Specification with TestComponentRegistry 
     // 3回目で登録が成功した場合にUserエンティティが返ることを確認する
     "return user for success of third store trial" in {
       running(FakeApplication()) {
+        // 呼び出し回数に応じて結果が変化するモックを作成
         val result = User(new UserId(UserId.generateId), "success", "xxxxx", "foo@gmail.com")
-        mUserDao.store(any[User]) throws new RuntimeException("first error.")
-        mUserDao.store(any[User]) throws new RuntimeException("second error.")
-        mUserDao.store(any[User]) returns result
+        var cnt = 0
+        mUserDao.store(any[User]) answers { user =>
+          cnt match {
+            // 1回目
+            case 0 => {
+              cnt += 1
+              throw new RuntimeException("first error.")
+            }
+            // 2回目
+            case 1 => {
+              cnt += 1
+              throw new RuntimeException("second error.")
+            }
+            // 3回目
+            case 2 => result
+          }
+        }
         userService.createAccount("success", "xxxxx", "foo@gmail.com") must haveClass(ClassTag(classOf[User]))
       }
     }
 
     // 登録が3回以上失敗した場合にエラーが返ることを確認する
+    "return OverRetryCountException for fail of more third trial" in {
+      running(FakeApplication()) {
+        mUserDao.store(any[User]) throws new RuntimeException("error")
+        userService.createAccount("fail", "xxxxx", "foo@gmail.com") must throwA[OverRetryCountException]
+      }
+    }
   }
 
 }
