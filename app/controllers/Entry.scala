@@ -1,7 +1,6 @@
 package controllers
 
 import scala.util.Random
-
 import core.ComponentRegistry.userService
 import play.api.data.Form
 import play.api.data.Forms.email
@@ -11,25 +10,11 @@ import play.api.data.Forms.text
 import play.api.libs.Crypto
 import play.api.mvc.Action
 import play.api.mvc.Controller
+import controllers.Entry.EntryData
+import controllers.Entry.EntryConfirmData
 
-object Entry extends Controller {
-
-  /**
-   * 入力フォーム用のデータ
-   *
-   * @param account アカウント
-   * @param password パスワード
-   * @param passwordConfirm パスワード(確認)
-   * @param emailAddress メールアドレスs
-   */
-  case class EntryData(
-    account: String,
-    password: String,
-    passwordConfirm: String,
-    emailAddress: String) {
-    /* ハッシュ化したパスワードを返却する */
-    def passwordHashing = Crypto.sign(password)
-  }
+trait Entry {
+  this: Controller =>
 
   /* 入力フォームのマッピング */
   val entryForm = Form(
@@ -42,16 +27,6 @@ object Entry extends Controller {
         entryData => entryData.password == entryData.passwordConfirm).verifying(
         "error.no.newly.account",
         entryData => userService.isNewlyAccount(entryData.account, entryData.passwordHashing)))
-
-  /**
-   * 確認フォーム用のデータ
-   *
-   * @param account アカウント
-   * @param passwordHashing ハッシュ化されたパスワード
-   * @param emailAddress メールアドレス
-   * @param csrfToken CSRF対策用のトークン
-   */
-  case class EntryConfirmData(account: String, passwordHashing: String, emailAddress: String, csrfToken: String)
 
   /* 確認フォームのマッピング */
   val entryConfirmForm = Form(
@@ -104,4 +79,37 @@ object Entry extends Controller {
           request.session - "csrfToken")
       })
   }
+}
+
+object Entry extends Controller with Entry {
+  /**
+   * 入力フォーム用のデータ
+   *
+   * @param account アカウント
+   * @param password パスワード
+   * @param passwordConfirm パスワード(確認)
+   * @param emailAddress メールアドレスs
+   */
+  case class EntryData(
+    account: String,
+    password: String,
+    passwordConfirm: String,
+    emailAddress: String) {
+    /* ハッシュ化したパスワードを返却する */
+    def passwordHashing = Crypto.sign(password)
+  }
+
+  /**
+   * 確認フォーム用のデータ
+   *
+   * @param account アカウント
+   * @param passwordHashing ハッシュ化されたパスワード
+   * @param emailAddress メールアドレス
+   * @param csrfToken CSRF対策用のトークン
+   */
+  case class EntryConfirmData(
+    account: String,
+    passwordHashing: String,
+    emailAddress: String,
+    csrfToken: String)
 }

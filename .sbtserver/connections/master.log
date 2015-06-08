@@ -1,22 +1,31 @@
-New log file opened at Sun Jun 07 07:11:52 JST 2015 by 38610@una-no-MacBook-Pro.local
-Taking next connection to: 59477
-New client attempting to connect on port: 59478-59477
-  Address = /192.168.1.2:59477
-This client on port 59478 has uuid 2944fe8d-1062-4a43-9721-de7c63952cd3 configName play-fork-run humanReadableName Play Fork Run protocolVersion 1 featureTags Vector()
-Connected Clients: play-fork-run-2944fe8d-1062-4a43-9721-de7c63952cd3
-Taking next connection to: 59477
+New log file opened at Mon Jun 08 17:21:36 JST 2015 by 3347@usr01671.local
+Taking next connection to: 54400
+New client attempting to connect on port: 54401-54400
+  Address = /192.168.0.151:54400
+This client on port 54401 has uuid ea9dd112-4bd5-4cae-97b8-8b2401a9074b configName play-fork-run humanReadableName Play Fork Run protocolVersion 1 featureTags Vector()
+Connected Clients: play-fork-run-ea9dd112-4bd5-4cae-97b8-8b2401a9074b
+Taking next connection to: 54400
+New client attempting to connect on port: 54472-54400
+  Address = /192.168.0.151:54400
+Handshake exception on socket: 54472
+sbt.impl.ipc.HandshakeException: Unable to perform handshake
+	at sbt.impl.ipc.Peer.handshake(IPC.scala:46)
+	at sbt.impl.ipc.MultiClientServer.<init>(IPC.scala:150)
+	at sbt.server.SbtServerSocketHandler$$anon$1.run(SbtServerSocketHandler.scala:43)
+Caused by: java.io.EOFException
+	at java.io.DataInputStream.readInt(DataInputStream.java:392)
+	at sbt.impl.ipc.Peer.receive(IPC.scala:95)
+	at sbt.impl.ipc.Peer.handshake(IPC.scala:49)
+	... 2 more
+Taking next connection to: 54400
+New client attempting to connect on port: 54473-54400
+  Address = /192.168.0.151:54400
+This client on port 54473 has uuid 665a3235-7b70-4a3e-8051-00d1c9654b7a configName play-fork-run humanReadableName Play Fork Run protocolVersion 1 featureTags Vector()
+Connected Clients: play-fork-run-665a3235-7b70-4a3e-8051-00d1c9654b7a
+Taking next connection to: 54400
 Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 59477
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 59477
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 59477
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 59477
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 59477
+No non-daemon clients connected after 3 min. Shutting down.
+Server socket thread exiting.
+0 clients open, will close them...
+All client sockets have been closed.
+Closing the 3347@usr01671.local logs at Mon Jun 08 17:26:47 JST 2015, goodbye.
