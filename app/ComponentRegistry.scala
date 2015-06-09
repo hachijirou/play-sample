@@ -9,7 +9,7 @@ import models.dao.MUserDaoComponent
  * サービス・DAOを追加した場合には他の例に習ってここに定義すること
  * 単体テストの際にコンポーネントの切り替えを容易にする狙いがある
  */
-object ComponentRegistry extends
+trait ComponentRegistry extends
   UserServiceComponent with
   MUserDaoComponent
 {

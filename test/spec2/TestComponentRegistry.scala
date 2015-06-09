@@ -11,13 +11,14 @@ import org.specs2.mock.Mockito
  * 単体テストの際にコンポーネントの切り替えを容易にする狙いがある
  */
 trait TestComponentRegistry extends
+  ComponentRegistry with
   UserServiceComponent with
   MUserDaoComponent with
   Mockito
 {
   /* define services */
-  lazy val userService = mock[UserService]
+  override val userService = mock[UserService]
 
   /* define daos */
-  lazy val mUserDao = mock[JdbcMUserDao]
+  override val mUserDao = mock[JdbcMUserDao]
 }

@@ -1,7 +1,6 @@
 package controllers
 
 import scala.util.Random
-import core.ComponentRegistry.userService
 import play.api.data.Form
 import play.api.data.Forms.email
 import play.api.data.Forms.mapping
@@ -12,9 +11,12 @@ import play.api.mvc.Action
 import play.api.mvc.Controller
 import controllers.Entry.EntryData
 import controllers.Entry.EntryConfirmData
+import models.service.UserServiceComponent
+import core.ComponentRegistry
 
 trait Entry {
-  this: Controller =>
+  this: Controller with
+    UserServiceComponent =>
 
   /* 入力フォームのマッピング */
   val entryForm = Form(
@@ -81,7 +83,7 @@ trait Entry {
   }
 }
 
-object Entry extends Controller with Entry {
+object Entry extends Controller with Entry with ComponentRegistry {
   /**
    * 入力フォーム用のデータ
    *
